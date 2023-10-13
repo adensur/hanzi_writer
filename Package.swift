@@ -5,6 +5,9 @@ import PackageDescription
 
 let package = Package(
     name: "HanziWriter",
+    platforms: [
+        .macOS(.v10_14), .iOS(.v15), .tvOS(.v13)
+    ],
     products: [
         // Products define the executables and libraries a package produces, making them visible to other packages.
         .library(
