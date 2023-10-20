@@ -153,17 +153,30 @@ struct TCrossHair: Shape {
     }
 }
 
-struct CharacterView: View {
+public struct CharacterView: View {
     var character: TCharacter
-    var body: some View {
+
+    public init(character: TCharacter) {
+        self.character = character
+    }
+
+    public var body: some View {
         GeometryReader {proxy in
             let size = min(proxy.size.width, proxy.size.height)
-            ZStack {
-                TCrossHair()
-                    .stroke(.gray.opacity(0.6), style: StrokeStyle(lineWidth: 1, dash: [6]))
-                TCharacterOutlineShape(character: character)
-                    .fill(.black)
+            VStack {
+                Spacer()
+                HStack {
+                    Spacer()
+                    ZStack {
+                        TCrossHair()
+                            .stroke(.gray.opacity(0.6), style: StrokeStyle(lineWidth: 1, dash: [6]))
+                        TCharacterOutlineShape(character: character)
+                            .fill(.primary)
+                    }
                     .frame(width: size, height: size)
+                    Spacer()
+                }
+                Spacer()
             }
         }
     }
@@ -197,7 +210,7 @@ public struct AnimatableCharacterView: View {
                         .stroke(.blue, style: StrokeStyle(lineWidth: 60, lineCap: .round, lineJoin: .round))
                         .mask {
                             TStrokeOutlineShape(outline: character.strokes[idx].outline)
-                                .fill(.black)
+                                .fill(.primary)
                         }
                     }
                 }
@@ -337,11 +350,8 @@ public struct QuizCharacterView : View {
     @State private var failsInARow = 0
     @State private var matchFinishedFlash = false
 
-    public init(dataModel: QuizDataModel, userStrokes: UserStrokes = UserStrokes(), failsInARow: Int = 0, matchFinishedFlash: Bool = false) {
+    public init(dataModel: QuizDataModel) {
         self.dataModel = dataModel
-        self.userStrokes = userStrokes
-        self.failsInARow = failsInARow
-        self.matchFinishedFlash = matchFinishedFlash
     }
 
     func outlineColour(idx: Int) -> Color {
@@ -349,10 +359,10 @@ public struct QuizCharacterView : View {
             return .blue
         }
         if dataModel.currentMatchingIdx > idx {
-            return .black
+            return .primary
         }
         if dataModel.showOutline {
-            return .gray
+            return .secondary
         }
         return .white.opacity(.zero)
     }
@@ -396,7 +406,7 @@ public struct QuizCharacterView : View {
                                     userStrokes.update(date: timelineDate)
                                     ctx.blendMode = .plusLighter
                                     ctx.addFilter(.blur(radius: 3))
-                                    ctx.addFilter(.alphaThreshold(min: 0.3, color: .black))
+                                    ctx.addFilter(.alphaThreshold(min: 0.3, color: .primary))
                                     for stroke in userStrokes.strokes {
                                         var path = Path()
                                         if let first = stroke.particles.first {
@@ -404,7 +414,7 @@ public struct QuizCharacterView : View {
                                             for particle in stroke.particles.dropFirst() {
                                                 ctx.opacity = (particle.deathDate - timelineDate) * 1.5
                                                 path.addLine(to: particle.position)
-                                                ctx.stroke(path, with: .color(.black), lineWidth: 10)
+                                                ctx.stroke(path, with: .color(.primary), lineWidth: 10)
                                                 path = Path()
                                                 path.move(to: particle.position)
                                             }
@@ -433,7 +443,7 @@ public struct QuizCharacterView : View {
                                     }
                                     if strokesMatch(userStroke: scalePoints(userStrokes.strokes.last!.points, width: width, height: height), characterStroke: mergedCharacterStroke) {
                                         failsInARow = 0
-                                        withAnimation(.easeInOut(duration: 0.6)) {
+                                        withAnimation(.easeInOut(duration: 0.3)) {
                                             dataModel.currentMatchingIdx += subStrokeCount
                                         }
                                         if dataModel.currentMatchingIdx == dataModel.character.strokes.count {
