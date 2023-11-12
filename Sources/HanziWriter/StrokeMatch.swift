@@ -252,20 +252,20 @@ func strokesMatch(userStroke: [CGPoint], characterStroke: [CGPoint]) -> Bool {
     }
     let avgDistance = averageDistance(from: userStroke, to: characterStroke)
     print("Avg distance: \(avgDistance)")
-    if avgDistance >= 0.1 {
+    if avgDistance >= 0.12 {
         print("Rejected by avg distance")
         return false
     }
     // checking distance between start and end
     let startDistance = distance(userStroke.first!, characterStroke.first!)
     print("Start distance: ", startDistance)
-    if startDistance > 0.15 {
+    if startDistance > 0.2 {
         print("Rejected by start distance")
         return false
     }
     let endDistance = distance(userStroke.first!, characterStroke.first!)
     print("End distance: ", endDistance)
-    if endDistance > 0.15 {
+    if endDistance > 0.2 {
         print("Rejected by end distance")
         return false
     }

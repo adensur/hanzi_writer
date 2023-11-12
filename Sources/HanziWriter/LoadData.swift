@@ -48,7 +48,7 @@ public struct TCharacter: Sendable {
 }
 
 // struct for JSON deserialization
-struct CharacterData: Decodable {
+public struct CharacterData: Decodable {
     // actual character, like "我"
     var character: String
     // SVG drawing of a character, divided into strokes
@@ -469,24 +469,37 @@ fileprivate func parseData(_ data: CharacterData, character: String, chiHack: Bo
 }
 
 public class CharacterHolder {
-    private(set) public var data: [String: TCharacter]
-    public init() {
+    private(set) public var data: [String: CharacterData]
+    private let chiHack: Bool
+    public init(chiHack: Bool) {
         self.data = [:]
+        self.chiHack = chiHack
     }
     
-    init(data: [String : TCharacter]) {
+    init(data: [String : CharacterData], chiHack: Bool) {
         self.data = data
+        self.chiHack = chiHack
     }
     
-    public static func load(url: URL, chiHack: Bool) throws -> CharacterHolder {
-        var res: [String: TCharacter] = [:]
-        let data = try! String(contentsOf: url)
-        for line in data.split(separator: "\n") {
-            let decoder = JSONDecoder()
-            let characterData = try! decoder.decode(CharacterData.self, from: Data(line.utf8))
-            res[characterData.character] = try parseData(characterData, character: characterData.character, chiHack: chiHack)
+    public func get(_ char: String) -> TCharacter? {
+        if let data = data[char] {
+            return try? parseData(data, character: char, chiHack: chiHack)
+        } else {
+            return nil
         }
-        return CharacterHolder(data: res)
+    }
+    
+    public static func load(url: URL, chiHack: Bool) async throws -> CharacterHolder {
+        let decoder = JSONDecoder()
+        var res: [String: CharacterData] = [:]
+        let handle = try FileHandle(forReadingFrom: url)
+        for try await line in url.lines {
+            let characterData = try! decoder.decode(CharacterData.self, from: line.data(using: .utf8)!)
+            res[characterData.character] = characterData
+            // leave this to try to check data correctness?
+            // res[characterData.character] = try parseData(characterData, character: characterData.character, chiHack: chiHack)
+        }
+        return CharacterHolder(data: res, chiHack: chiHack)
     }
     
     public func merge(from: CharacterHolder) {
