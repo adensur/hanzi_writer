@@ -432,6 +432,10 @@ public struct QuizCharacterView : View {
                                     // match the previous stroke
                                     var mergedCharacterStroke: [CGPoint] = []
                                     var subStrokeCount = 0
+                                    if dataModel.character.strokeMap.count <= dataModel.currentMatchingIdx {
+                                        // the user could sneak in an extra stroke right after the last one
+                                        return
+                                    }
                                     let strokeToMatch = dataModel.character.strokeMap[dataModel.currentMatchingIdx]
                                     var subStrokeIndices: [Int] = []
                                     for idx in 0..<dataModel.character.strokeMap.count {
