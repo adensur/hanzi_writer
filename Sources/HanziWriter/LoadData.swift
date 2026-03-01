@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum StrokePathComponent: Equatable {
+public enum StrokePathComponent: Equatable, Sendable {
     case move(to: CGPoint)
     case addQuadCurve(to: CGPoint, control: CGPoint)
     case addCurve(to: CGPoint, control1: CGPoint, control2: CGPoint)
@@ -16,7 +16,7 @@ enum StrokePathComponent: Equatable {
     case Arc(radiusX: Double, largeArc: Bool, sweep: Bool, to: CGPoint)
     
     // used in tests for easy fixed-precision comparison
-    func toString() -> String {
+    public func toString() -> String {
         switch self {
         case .move(let to):
             return String(format: "M %.2f %.2f", to.x, to.y)
@@ -34,17 +34,17 @@ enum StrokePathComponent: Equatable {
     }
 }
 
-struct StrokeData: Identifiable {
-    var id: Int
-    var outline: [StrokePathComponent]
-    var medians: [CGPoint]
+public struct StrokeData: Identifiable, Sendable {
+    public var id: Int
+    public var outline: [StrokePathComponent]
+    public var medians: [CGPoint]
 }
 
 public struct TCharacter: Sendable {
-    let character: String
+    public let character: String
     // parsed SVG path data
-    let strokes: [StrokeData]
-    let strokeMap: [Int]
+    public let strokes: [StrokeData]
+    public let strokeMap: [Int]
 }
 
 // struct for JSON deserialization

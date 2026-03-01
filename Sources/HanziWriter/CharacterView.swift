@@ -116,9 +116,12 @@ struct TStrokeShape: Shape {
     }
 }
 
-struct TStrokeOutlineShape: Shape {
-    var outline: [StrokePathComponent]
-    func path(in rect: CGRect) -> Path {
+public struct TStrokeOutlineShape: Shape {
+    public var outline: [StrokePathComponent]
+    public init(outline: [StrokePathComponent]) {
+        self.outline = outline
+    }
+    public func path(in rect: CGRect) -> Path {
         var path = Path()
         let width = rect.size.width
         let height = rect.size.height
