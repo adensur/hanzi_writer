@@ -308,11 +308,22 @@ public class QuizDataModel: ObservableObject {
     @Published public var canvasEnabled: Bool
     @Published public var currentMatchingIdx = 0
     @Published public var drawProgress: [Double] = []
+    public var onMistake: () -> Void
+    public var onHintShown: () -> Void
     public var onSuccess: () -> Void
-    public init(character: TCharacter, showOutline: Bool = true, canvasEnabled: Bool = true, onSuccess: @escaping () -> Void) {
+    public init(
+        character: TCharacter,
+        showOutline: Bool = true,
+        canvasEnabled: Bool = true,
+        onMistake: @escaping () -> Void = {},
+        onHintShown: @escaping () -> Void = {},
+        onSuccess: @escaping () -> Void
+    ) {
         self.character = character
         self.showOutline = showOutline
         self.canvasEnabled = canvasEnabled
+        self.onMistake = onMistake
+        self.onHintShown = onHintShown
         self.onSuccess = onSuccess
         drawProgress = character.strokes.map {_ in
             return 0.0
@@ -467,6 +478,10 @@ public struct QuizCharacterView : View {
                                     } else {
                                         // trigger stroke animation after N successive failures
                                         failsInARow += 1
+                                        dataModel.onMistake()
+                                        if failsInARow == 3 {
+                                            dataModel.onHintShown()
+                                        }
                                         if failsInARow >= 3 {
                                             var delay = 0.0
                                             let strokeTooltipDuration = 0.5
